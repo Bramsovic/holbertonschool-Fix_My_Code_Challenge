@@ -11,43 +11,46 @@
  */
 int delete_dnodeint_at_index(dlistint_t **head, unsigned int index)
 {
-    dlistint_t *current;
-    unsigned int p;
+	dlistint_t *saved_head;
+	dlistint_t *tmp;
+	unsigned int p;
 
-    if (head == NULL || *head == NULL)
-        return (-1);
+	if (*head == NULL)
+	{
+		return (-1);
+	}
 
-    current = *head;
-    p = 0;
+	saved_head = *head;
+	p = 0;
+	while (p < index && *head != NULL)
+	{
+		*head = (*head)->next;
+		p++;
+	}
+	if (p != index)
+	{
+		*head = saved_head;
+		return (-1);
+	}
 
-    /* Avancer jusqu'à l'index */
-    while (p < index && current != NULL)
-    {
-        current = current->next;
-        p++;
-    }
+	if (0 == index)
+	{
+		tmp = (*head)->next;
+		free(*head);
+		*head = tmp;
+		if (tmp != NULL)
+		{
+			tmp->prev = NULL;
+		}
+	}
+	else
+	{
+		(*head)->prev->next = (*head)->next;
+		if ((*head)->next)
+			(*head)->next->prev = (*head)->prev;
+		free(*head);
+		*head = saved_head;
+	}
 
-    /* Vérifier si l'index est valide */
-    if (current == NULL)
-        return (-1);
-
-    /* Suppression du premier élément */
-    if (index == 0)
-    {
-        *head = current->next;
-        if (*head != NULL)
-            (*head)->prev = NULL;
-        free(current);
-    }
-    /* Suppression d'un élément au milieu ou à la fin */
-    else
-    {
-        if (current->prev)
-            current->prev->next = current->next;
-        if (current->next)
-            current->next->prev = current->prev;
-        free(current);
-    }
-
-    return (1);
+	return (1);
 }
